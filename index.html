@@ -1,0 +1,30 @@
+<html>
+<head>
+  <link rel="stylesheet" href="css/styles.css" type="text/css"/>
+  <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
+</head>
+<body>
+  <div id="demotitle">Snake's Heads (DEMO)</div>
+  <div id="paramsdiv">
+    <table border="0">
+      <tr>
+        <td>POPULATION:</td>
+        <td><input type="text" value="10" id="counterinput" class="inputlinebottom"/><a href="javascript:void(0)" onclick="restart()"> restart demo</a></td>
+      </tr>
+      <tr>
+        <td>SPEED:</td>
+        <td><input type="text" value="80" id="speedinput" class="inputlinebottom"/><a href="javascript:void(0)" onclick="restart_speed_only()"> change speed</a></td>
+      </tr>
+    </table>
+    <div id="playback">
+      <a href="javascript:void(0)" onclick="setPause()">pause</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick="play()">play</a>
+      <br/>
+      <div id="GlobalTimer" style="text-align:center;color:white">0</div>
+    </div>
+  </div>
+  <div id="scores" style="height: 1000px; float: left; width: 100px; margin-left: 200px;"></div>
+  <div id="playground"></div>
+  <div id="infopanel"></div>
+</body>
+</html>
