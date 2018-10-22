@@ -1,10 +1,31 @@
 var cols = 50;
 var rows = 50;
+var enableStatus = false;
 
-function game(speed, num)
-{
-  var SnakeX = 25;
-  var SnakeY = 25;
+function nextFruitPos() {
+  var oldX = nextFruitPos.x;
+  var oldY = nextFruitPos.y;
+  var newPos = genNewPos(oldX, oldY);
+
+  oldX++;
+  if (oldX > cols) {
+    oldX = 1;
+  }
+  nextFruitPos.x = oldX;
+  return newPos;
+}
+function genNewPos(x, y) {
+  return {
+    x: x,
+    y: Math.floor(Math.sin(x) * 3) + rows/2 + 1
+  };
+}
+nextFruitPos.x = 1;
+nextFruitPos.y = 1;
+
+function game(speed, num) {
+  var SnakeX = Math.floor(Math.random()*(cols)+1);
+  var SnakeY = Math.floor(Math.random()*(rows)+1);
 
   var FruitX = 5;
   var FruitY = 5;
@@ -16,11 +37,9 @@ function game(speed, num)
   var snakeNum = num;
 
   var gameContext = this;
-  
-  var eating = function()
-  {
-    if(isFruitEaten)
-    {
+
+  var eating = function() {
+    if(isFruitEaten) {
       createNewFruit();
       drawFruit();
     }
@@ -29,85 +48,93 @@ function game(speed, num)
     snakeLogic();
   }
   
-  gameContext.start = function()
-  {
+  gameContext.start = function() {
     IntervalID = setInterval(eating, gameContext.speed);
   }
   
   gameContext.start();
-  
-  var createNewFruit = function()
-  {
-    FruitX = Math.floor(Math.random()*(cols)+1);
-    FruitY = Math.floor(Math.random()*(rows)+1);
+
+  var createNewFruit = function() {
+    var newFruitPos = nextFruitPos();
+    FruitX = newFruitPos.x;
+    FruitY = newFruitPos.y;
+    // FruitX = Math.floor(Math.random()*(cols)+1);
+    // FruitY = Math.floor(Math.random()*(rows)+1);
     isFruitEaten = false;
   }
 
-  var drawSnake = function()
-  {
-    var snakeCell = $('#'+SnakeX.toString()+'-'+SnakeY.toString());
-    snakeCell.removeClass('cell').addClass('snake').prepend('<div class="snakeNum">'+snakeNum+':'+score+'</div>');
+  var replaceClass = function(element, oldClassName, newClassName) {
+    element.className = element.className.replace(new RegExp('\b' + oldClassName + '\b', 'g'), '');
+    element.className = newClassName;
   }
 
-  var eraseSnake = function()
-  {
-    $('#'+SnakeX.toString()+'-'+SnakeY.toString()).removeClass('snake').addClass('cell').html('');
+  var getElement = function(x, y) {
+    return document.getElementById(x.toString() + '-' + y.toString());
   }
 
-  var eraseFruit = function()
-  {
-    $('#'+FruitX.toString()+'-'+FruitY.toString()).removeClass('fruit').addClass('cell');
+  var drawSnake = function() {
+    var snakeCell = getElement(SnakeX, SnakeY);
+    replaceClass(snakeCell, 'cell', 'snake');
+    if (enableStatus) {
+      snakeCell.innerHTML = '<div class="snakeNum">'+snakeNum+':'+score+'</div>';
+    }
+  }
+
+  var eraseSnake = function() {
+    var snakeCell = getElement(SnakeX, SnakeY);
+    replaceClass(snakeCell, 'snake', 'cell');
+    if (enableStatus) {
+      snakeCell.innerHTML = '';
+    }
+  }
+
+  var eraseFruit = function() {
+    var fruitCell = getElement(FruitX, FruitY);
+    replaceClass(fruitCell, 'fruit', 'cell');
   }
   
-  var drawFruit = function()
-  {
-    $('#'+FruitX.toString()+'-'+FruitY.toString()).removeClass('cell').addClass('fruit');
+  var drawFruit = function() {
+    var fruitCell = getElement(FruitX, FruitY);
+    replaceClass(fruitCell, 'cell', 'fruit');
   }
 
-  var eatFruit = function()
-  {
-    $('#'+FruitX.toString()+'-'+FruitY.toString()).removeClass('fruit').addClass('snake');
+  var eatFruit = function() {
+    var fruitCell = getElement(FruitX, FruitY);
+    replaceClass(fruitCell, 'fruit', 'snake');
     isFruitEaten = true;
     score++;
   }
 
-  gameContext.getScore = function()
-  {
+  gameContext.getScore = function() {
     return score;
   }
 
-  var snakeLogic = function()
-  {
+  var snakeLogic = function() {
     eraseSnake();
-    if((SnakeX < FruitX) && SnakeY==FruitY)
-    {
+    if((SnakeX < FruitX) && SnakeY == FruitY) {
       SnakeX++;
-    }
-    else
-      if((SnakeX > FruitX) && SnakeY==FruitY)
+    } else if((SnakeX > FruitX) && SnakeY == FruitY) {
         SnakeX--;
+      }
 
-    if(SnakeY < FruitY)
-    {
+    if(SnakeY < FruitY) {
       SnakeY++;
-    }
-    else
-      if(SnakeY > FruitY)
+    } else if(SnakeY > FruitY) {
         SnakeY--;
+      }
     
-    if((SnakeX == FruitX)&&(SnakeY == FruitY))
+    if((SnakeX == FruitX)&&(SnakeY == FruitY)) {
       eatFruit();
-    else
+    } else {
       drawSnake();
+    }
   }
   
-  gameContext.stopEating = function()
-  {
+  gameContext.stopEating = function() {
     clearInterval(IntervalID);
   }
   
-  gameContext.destroyGame = function()
-  {
+  gameContext.destroyGame = function() {
     gameContext.stopEating();
     eraseFruit();
     eraseSnake();
@@ -118,122 +145,134 @@ var snakes = [];
 var MAXIMUM;
 var speeds;
 
-populate = function()
-{
+populate = function() {
   GlobalTimer.start();
-  for(var i=0; i<MAXIMUM; i++)
+  for(var i=0; i<MAXIMUM; i++) {
     snakes[i] = new game(speeds, i);
+  }
 }
 
-setPause = function()
-{
+setPause = function() {
   GlobalTimer.pause();
-  for(var i=0; i<MAXIMUM; i++)
+  for(var i=0; i<MAXIMUM; i++) {
     snakes[i].stopEating();
+  }
 }
 
-play = function()
-{
+play = function() {
   GlobalTimer.resume();
-  for(var i=0; i<MAXIMUM; i++)
+  for(var i=0; i<MAXIMUM; i++) {
     snakes[i].start();
+  }
 }
 
-restart = function()
-{
+restart = function() {
   GlobalTimer.reset();
-  for(var i=0; i<MAXIMUM; i++)
-  {
+  for(var i=0; i<MAXIMUM; i++) {
     snakes[i].destroyGame();
     delete snakes[i];
   }
   
-  MAXIMUM = parseInt($('#counterinput').val());
-  speeds = parseInt($('#speedinput').val());
+  var counterInput = document.getElementById('counterinput');
+  var speedInput = document.getElementById('speedinput');
+  MAXIMUM = parseInt(counterInput.value);
+  speeds = parseInt(speedInput.value);
   populate(); 
 }
 
-restart_speed_only = function()
-{
-  speeds = parseInt($('#speedinput').val());
-  for(var i=0; i<MAXIMUM; i++)
-  {
+restart_speed_only = function() {
+  var speedInput = document.getElementById('speedinput');
+  speeds = parseInt(speedInput.value);
+  for(var i=0; i<MAXIMUM; i++) {
     snakes[i].stopEating();
     snakes[i].speed = speeds;
     snakes[i].start();
   }
 }
 
+
+
 GlobalTimer = {
   seconds: 0,
-  
+  seconds2: 0,
   timerId: -1,
-  
+  timeoutId: -1,
   globalTimerContext: this,
-  
-  reset: function(){
+  reset: function() {
     var timer = this;
     timer.seconds = 0;
+    timer.seconds2 = 0;
     timer.stop();
     timer.start();
   },
   
-  start: function(){
-    // console.log('timer started at '+new Date());
+  start: function() {
     var timer = this;
-    timerId = setInterval(function(){
-                            timer.seconds += 1;
-                            // console.log(timer.seconds+' '+new Date());
-                            $('#GlobalTimer').text(timer.seconds);
-                            if((timer.seconds%15)===0)
-                            {
-                              setPause();
-                              
-                              
-                              for(var i=0; i<MAXIMUM; i++)
-                                console.log('snake '+i+': '+snakes[i].getScore());
-
-                              // Taken from http://www.phpied.com/sleep-in-javascript/
-                              // Пауза на пару секунд.
-                              // var start = new Date().getTime();
-                              // var milliseconds = 2000;
-                              // for (var i = 0; i < 1e7; i++) {
-                                // if ((new Date().getTime() - start) > milliseconds){
-                                  // break;
-                                // }
-                              // }
-                              
-                              play();
-                            }
-                          }, 1000);
+    var globalTimer = document.getElementById('GlobalTimer');
+    var globalTimer2 = document.getElementById('GlobalTimer2');
+    timerId = setInterval(
+      function() {
+        timer.seconds += 1;
+        globalTimer.innerText = timer.seconds;
+        // if((timer.seconds % 15) === 0) {
+        //   setPause();                   
+        //   play();
+        // }
+      }, 1000);
+    timeoutId = setTimeout(timeout, 1000);
+    function timeout() {
+      timer.seconds2++;
+      globalTimer2.innerText = timer.seconds2;
+      timeoutId = setTimeout(timeout, 1000);
+    }
   },
   
   // TODO: исправить глюк при смене скорости, когда этот таймер скачет на 2 секунды
   
-  stop: function(){
+  stop: function() {
     var timer = this;
     clearInterval(timerId);
+    clearTimeout(timeoutId);
     timer.seconds = 0;
+    timer.seconds2 = 0;
   },
   
-  pause: function(){
+  pause: function() {
     clearInterval(timerId);
+    clearTimeout(timeoutId);
   },
   
-  resume: function(){
+  resume: function() {
     this.start();
   }
 }
 
-$(function(){
-    for(var i=0; i<cols; i++)
-      for(var j=0; j<rows; j++)
-        $('#playground').append('<div class="cell" id="'+(j+1).toString()+'-'+(i+1).toString()+'"></div>');
-      
-    $('.cell').click( function(){ $('#infopanel').text('INFO: '+$(this).attr('id')) } );
+// $(function() {
+document.addEventListener('DOMContentLoaded', function() {
+  var playGround = document.getElementById('playground');
+  var playGroundHTML = '';
+  for(var i=0; i<cols; i++) {
+    for(var j=0; j<rows; j++) {
+      playGroundHTML += '<div class="cell" id="' + (j + 1).toString() + '-' + (i + 1).toString() + '"></div>';
+      // $('#playground').append('<div class="cell" id="'+(j+1).toString()+'-'+(i+1).toString()+'"></div>');
+    }
+  }
+  playGround.innerHTML = playGroundHTML;
 
-    MAXIMUM = parseInt($('#counterinput').val());
-    speeds = parseInt($('#speedinput').val());
+  playground.addEventListener('click', function(evt) {
+    var cell = evt.target;
+    if (['cell', 'snake', 'fruit'].indexOf(cell.className) >= 0) {
+      var infoPanel = document.getElementById('infopanel');
+      infoPanel.innerText = 'INFO: ' + cell.getAttribute('id');
+    }
+  });
 
-    populate();
+  var counterInput = document.getElementById('counterinput');
+  var speedInput = document.getElementById('speedinput');
+  MAXIMUM = parseInt(counterInput.value);
+  speeds = parseInt(speedInput.value);
+  //MAXIMUM = parseInt($('#counterinput').val());
+  //speeds = parseInt($('#speedinput').val());
+
+  populate();
 });
