@@ -1,0 +1,4 @@
+# Almost Snakes
+This is a small project which I have created four years ago (in 2014). I just wanted to make a demo in which the small dots called snake heads are moving to the fruits and eating them just like in the classic game called "Snake". But they're not growing up. The snakehead just eats a fruit and there's another fruit appears immediately and then snakehead go for it and eats it and again and again infinitely.
+This demo also lets you to set the number of snakeheads and their speed.
+I have used a jQuery but recently I have throwed it away and rewritten it in pure vanilla Javascript. Also I'm planning to implement it with web workers and even maybe on WebAssembly.
